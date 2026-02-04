@@ -83,3 +83,4 @@ terraform apply          # Apply infrastructure changes
 
 - PRD: `docs/PRD.md`
 - Implementation Guide: `docs/IMPLEMENTATION.md`
+- Improvement Plan: `docs/MVP-IMPROVEMENTS.md`
