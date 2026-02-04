@@ -5,9 +5,13 @@ const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 });
 
+const isGitHubPages = process.env.GITHUB_ACTIONS === 'true';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
+  basePath: isGitHubPages ? '/PeoplesEconomyHub' : '',
+  assetPrefix: isGitHubPages ? '/PeoplesEconomyHub/' : '',
   images: {
     unoptimized: true,
   },
