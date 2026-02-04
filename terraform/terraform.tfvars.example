@@ -1,0 +1,8 @@
+github_owner    = "your-org-or-username"
+repository_name = "peoples-economy-hub"
+
+# Optional: BLS API key (can also be set manually in GitHub)
+# bls_api_key = "your-bls-api-key"
+
+# Optional: custom domain
+# custom_domain = "peopleseconomyhub.org"

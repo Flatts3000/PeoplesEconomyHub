@@ -1,0 +1,269 @@
+import fs from 'fs';
+import path from 'path';
+
+const BLS_API_URL = 'https://api.bls.gov/publicAPI/v2/timeseries/data/';
+const BLS_API_KEY = process.env.BLS_API_KEY;
+
+// BLS Series IDs
+const SERIES = {
+  MEDIAN_WEEKLY_EARNINGS: 'LEU0252881500',
+  CPI_ALL_ITEMS: 'CUUR0000SA0',
+  CPI_SHELTER: 'CUUR0000SAH1',
+  CPI_FOOD_AT_HOME: 'CUUR0000SAF11',
+  CPI_ENERGY: 'CUUR0000SA0E',
+  CPI_TRANSPORTATION: 'CUUR0000SAT1',
+  CPI_MEDICAL_CARE: 'CUUR0000SAM',
+};
+
+interface BLSResponse {
+  status: string;
+  responseTime: number;
+  message: string[];
+  Results: {
+    series: {
+      seriesID: string;
+      data: {
+        year: string;
+        period: string;
+        periodName: string;
+        value: string;
+        footnotes: { code: string; text: string }[];
+      }[];
+    }[];
+  };
+}
+
+async function fetchBLSSeries(
+  seriesIds: string[],
+  startYear: number,
+  endYear: number
+): Promise<BLSResponse> {
+  const body = {
+    seriesid: seriesIds,
+    startyear: startYear.toString(),
+    endyear: endYear.toString(),
+    registrationkey: BLS_API_KEY,
+  };
+
+  const response = await fetch(BLS_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    throw new Error(`BLS API error: ${response.status} ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+function parseQuarterlyData(
+  data: BLSResponse['Results']['series'][0]['data']
+): { date: string; value: number }[] {
+  // Filter to Q1 data points (M01, M02, M03 average or just use quarterly)
+  const quarterlyData: { date: string; value: number }[] = [];
+
+  // Group by year and quarter
+  const grouped = new Map<string, number[]>();
+
+  for (const point of data) {
+    const year = point.year;
+    const month = parseInt(point.period.replace('M', ''));
+    const quarter = Math.ceil(month / 3);
+    const key = `Q${quarter} ${year}`;
+
+    if (!grouped.has(key)) {
+      grouped.set(key, []);
+    }
+    grouped.get(key)!.push(parseFloat(point.value));
+  }
+
+  // Average each quarter
+  for (const [key, values] of grouped) {
+    const avg = values.reduce((a, b) => a + b, 0) / values.length;
+    quarterlyData.push({ date: key, value: avg });
+  }
+
+  // Sort by date
+  return quarterlyData.sort((a, b) => {
+    const [aq, ay] = a.date.split(' ');
+    const [bq, by] = b.date.split(' ');
+    const yearDiff = parseInt(ay) - parseInt(by);
+    if (yearDiff !== 0) return yearDiff;
+    return parseInt(aq.replace('Q', '')) - parseInt(bq.replace('Q', ''));
+  });
+}
+
+function parseMonthlyData(
+  data: BLSResponse['Results']['series'][0]['data']
+): { date: string; value: number }[] {
+  return data
+    .map((point) => ({
+      date: `${point.periodName} ${point.year}`,
+      value: parseFloat(point.value),
+    }))
+    .reverse();
+}
+
+async function main() {
+  if (!BLS_API_KEY) {
+    console.warn('Warning: BLS_API_KEY not set. Using unauthenticated requests.');
+  }
+
+  const currentYear = new Date().getFullYear();
+  const startYear = currentYear - 5;
+
+  console.log(`Fetching BLS data from ${startYear} to ${currentYear}...`);
+
+  try {
+    // Fetch all series
+    const response = await fetchBLSSeries(
+      Object.values(SERIES),
+      startYear,
+      currentYear
+    );
+
+    if (response.status !== 'REQUEST_SUCCEEDED') {
+      throw new Error(`BLS API request failed: ${response.message.join(', ')}`);
+    }
+
+    // Parse series data
+    const seriesData = new Map<string, BLSResponse['Results']['series'][0]['data']>();
+    for (const series of response.Results.series) {
+      seriesData.set(series.seriesID, series.data);
+    }
+
+    // Save raw data for processing
+    const rawDataDir = path.join(process.cwd(), 'src', 'data', 'raw');
+    if (!fs.existsSync(rawDataDir)) {
+      fs.mkdirSync(rawDataDir, { recursive: true });
+    }
+
+    fs.writeFileSync(
+      path.join(rawDataDir, 'bls-response.json'),
+      JSON.stringify(response, null, 2)
+    );
+
+    console.log('BLS data fetched successfully!');
+    console.log(`Series fetched: ${response.Results.series.length}`);
+
+    // Process purchasing power data
+    const earningsData = seriesData.get(SERIES.MEDIAN_WEEKLY_EARNINGS);
+    const cpiData = seriesData.get(SERIES.CPI_ALL_ITEMS);
+
+    if (earningsData && cpiData) {
+      const earningsQuarterly = parseQuarterlyData(earningsData);
+      const cpiQuarterly = parseQuarterlyData(cpiData);
+
+      // Calculate real wages
+      const realWages = earningsQuarterly.map((earning) => {
+        const cpi = cpiQuarterly.find((c) => c.date === earning.date);
+        const realValue = cpi ? earning.value / (cpi.value / 100) : earning.value;
+        return { date: earning.date, value: realValue };
+      });
+
+      // Calculate YoY change
+      const yoyChanges = realWages.slice(4).map((current, i) => {
+        const prior = realWages[i];
+        const change = ((current.value - prior.value) / prior.value) * 100;
+        return { date: current.date, value: parseFloat(change.toFixed(1)) };
+      });
+
+      const latestValue = yoyChanges[yoyChanges.length - 1]?.value ?? 0;
+
+      const purchasingPowerOutput = {
+        value: latestValue,
+        data: yoyChanges.slice(-20),
+        lastUpdated: new Date().toISOString(),
+        isFallback: false,
+      };
+
+      fs.writeFileSync(
+        path.join(process.cwd(), 'src', 'data', 'metrics', 'purchasing-power.json'),
+        JSON.stringify(purchasingPowerOutput, null, 2)
+      );
+
+      console.log('Purchasing power data updated.');
+    }
+
+    // Process essentials inflation data
+    const shelterData = seriesData.get(SERIES.CPI_SHELTER);
+    const foodData = seriesData.get(SERIES.CPI_FOOD_AT_HOME);
+    const energyData = seriesData.get(SERIES.CPI_ENERGY);
+    const transportData = seriesData.get(SERIES.CPI_TRANSPORTATION);
+    const medicalData = seriesData.get(SERIES.CPI_MEDICAL_CARE);
+    const headlineData = seriesData.get(SERIES.CPI_ALL_ITEMS);
+
+    if (shelterData && foodData && energyData && transportData && medicalData && headlineData) {
+      const weights = {
+        shelter: 0.33,
+        food: 0.13,
+        energy: 0.07,
+        transport: 0.17,
+        medical: 0.08,
+      };
+      const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
+
+      const shelterMonthly = parseMonthlyData(shelterData);
+      const foodMonthly = parseMonthlyData(foodData);
+      const energyMonthly = parseMonthlyData(energyData);
+      const transportMonthly = parseMonthlyData(transportData);
+      const medicalMonthly = parseMonthlyData(medicalData);
+      const headlineMonthly = parseMonthlyData(headlineData);
+
+      const calculateYoY = (data: { value: number }[], index: number) => {
+        if (index < 12) return 0;
+        const current = data[index].value;
+        const prior = data[index - 12].value;
+        return ((current - prior) / prior) * 100;
+      };
+
+      const essentialsData = shelterMonthly.slice(12).map((_, i) => {
+        const idx = i + 12;
+        const shelterYoY = calculateYoY(shelterMonthly, idx);
+        const foodYoY = calculateYoY(foodMonthly, idx);
+        const energyYoY = calculateYoY(energyMonthly, idx);
+        const transportYoY = calculateYoY(transportMonthly, idx);
+        const medicalYoY = calculateYoY(medicalMonthly, idx);
+        const headlineYoY = calculateYoY(headlineMonthly, idx);
+
+        const essentialsYoY =
+          (weights.shelter * shelterYoY +
+            weights.food * foodYoY +
+            weights.energy * energyYoY +
+            weights.transport * transportYoY +
+            weights.medical * medicalYoY) /
+          totalWeight;
+
+        return {
+          date: shelterMonthly[idx].date,
+          essentials: parseFloat(essentialsYoY.toFixed(1)),
+          headline: parseFloat(headlineYoY.toFixed(1)),
+        };
+      });
+
+      const latestEssentials = essentialsData[essentialsData.length - 1];
+
+      const essentialsOutput = {
+        value: latestEssentials?.essentials ?? 0,
+        headlineCPI: latestEssentials?.headline ?? 0,
+        data: essentialsData.slice(-12),
+        lastUpdated: new Date().toISOString(),
+        isFallback: false,
+      };
+
+      fs.writeFileSync(
+        path.join(process.cwd(), 'src', 'data', 'metrics', 'essentials-inflation.json'),
+        JSON.stringify(essentialsOutput, null, 2)
+      );
+
+      console.log('Essentials inflation data updated.');
+    }
+  } catch (error) {
+    console.error('Error fetching BLS data:', error);
+    process.exit(1);
+  }
+}
+
+main();

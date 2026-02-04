@@ -1,0 +1,20 @@
+{
+  "value": 3.8,
+  "headlineCPI": 2.9,
+  "data": [
+    { "date": "Jan 2024", "essentials": 4.2, "headline": 3.1 },
+    { "date": "Feb 2024", "essentials": 4.0, "headline": 3.2 },
+    { "date": "Mar 2024", "essentials": 4.1, "headline": 3.5 },
+    { "date": "Apr 2024", "essentials": 4.3, "headline": 3.4 },
+    { "date": "May 2024", "essentials": 4.1, "headline": 3.3 },
+    { "date": "Jun 2024", "essentials": 3.9, "headline": 3.0 },
+    { "date": "Jul 2024", "essentials": 3.8, "headline": 2.9 },
+    { "date": "Aug 2024", "essentials": 3.7, "headline": 2.5 },
+    { "date": "Sep 2024", "essentials": 3.6, "headline": 2.4 },
+    { "date": "Oct 2024", "essentials": 3.7, "headline": 2.6 },
+    { "date": "Nov 2024", "essentials": 3.8, "headline": 2.7 },
+    { "date": "Dec 2024", "essentials": 3.8, "headline": 2.9 }
+  ],
+  "lastUpdated": "2025-01-10T08:30:00-05:00",
+  "isFallback": true
+}
