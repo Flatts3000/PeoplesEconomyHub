@@ -80,3 +80,21 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Performance: Optimize rendering for off-screen content */
+section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
+
+/* Performance: Hardware acceleration for animations */
+.animate-pulse {
+  will-change: opacity;
+}
+
+/* Performance: Optimize text rendering */
+body {
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

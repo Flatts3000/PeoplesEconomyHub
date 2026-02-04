@@ -1,7 +1,14 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#047857',
+};
 
 export const metadata: Metadata = {
   title: "People's Economy Hub",
@@ -20,6 +27,9 @@ export const metadata: Metadata = {
     title: "People's Economy Hub",
     description:
       'Understanding how the economy affects American households through clear, household-centered metrics.',
+  },
+  other: {
+    'format-detection': 'telephone=no',
   },
 };
 
@@ -40,6 +50,23 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* DNS prefetch and preconnect for external resources */}
+        <link rel="dns-prefetch" href="//api.bls.gov" />
+        <link rel="preconnect" href="https://api.bls.gov" crossOrigin="anonymous" />
+
+        {/* Optimize font loading with font-display: swap */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              @font-face {
+                font-family: 'system-ui';
+                font-display: swap;
+              }
+            `,
+          }}
+        />
+
+        {/* Structured data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
