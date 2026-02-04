@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import { Metric } from '@/lib/types';
 import { MetricChartWrapper } from './MetricChartWrapper';
+import { ChartHelp } from './ChartHelp';
+import { CiteButton } from './CiteButton';
+import { ShareButtons } from './ShareButtons';
 import { formatValue, formatDate } from '@/lib/formatters';
 
 interface MetricCardProps {
@@ -67,7 +70,7 @@ export function MetricCard({ metric }: MetricCardProps) {
             </div>
           </div>
 
-          <div className="mt-6 flex items-center gap-4 text-sm">
+          <div className="mt-6 flex flex-wrap items-center gap-4 text-sm">
             <span className="text-muted">
               Last updated: {formatDate(metric.lastUpdated)}
             </span>
@@ -77,11 +80,20 @@ export function MetricCard({ metric }: MetricCardProps) {
             >
               View methodology →
             </Link>
+            <CiteButton metric={metric} />
+            <ShareButtons
+              title={metric.title}
+              description={metric.summary}
+              url={`https://peopleseconomyhub.github.io/#${metric.id}`}
+            />
           </div>
         </div>
 
-        <div className="flex items-center justify-center">
-          <MetricChartWrapper metric={metric} />
+        <div>
+          <div className="flex items-center justify-center">
+            <MetricChartWrapper metric={metric} />
+          </div>
+          <ChartHelp howToRead={metric.howToRead} />
         </div>
       </div>
     </section>

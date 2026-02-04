@@ -28,6 +28,8 @@ export function getMetrics(): Metric[] {
         'While GDP and stock markets may rise, this metric shows whether ordinary workers are actually better off. It focuses on the median (middle) worker, not averages that can be skewed by high earners.',
       commonMisinterpretation:
         'This does not capture high-income households. GDP can rise even if this falls, because GDP includes corporate profits and investment gains.',
+      howToRead:
+        'The line shows year-over-year change in real (inflation-adjusted) median wages. Above zero (green zone) means paychecks buy more than last year. Below zero (red zone) means purchasing power is falling. Look for sustained trends rather than single quarters.',
       chartData: data.purchasingPower.data.map((d) => ({
         label: d.date,
         value: d.value,
@@ -52,6 +54,8 @@ export function getMetrics(): Metric[] {
         'Official inflation measures include things like electronics and entertainment that people can delay buying. This focuses on unavoidable expenses that consume most household budgets.',
       commonMisinterpretation:
         'This is not the official inflation rate. It specifically tracks necessities, which often rise faster than overall inflation.',
+      howToRead:
+        'The line shows the year-over-year inflation rate for essential goods. Higher values mean prices are rising faster. Compare to headline CPI (shown in methodology) to see if essentials are outpacing overall inflation. Values above 3% indicate significant cost pressure on household budgets.',
       chartData: data.essentialsInflation.data.map((d) => ({
         label: d.date,
         value: d.essentials,
@@ -77,6 +81,8 @@ export function getMetrics(): Metric[] {
         'Financial resilience determines whether a car repair or medical bill becomes a crisis. This metric shows how many families are one unexpected expense away from financial hardship.',
       commonMisinterpretation:
         'This measures liquid savings available for emergencies, not total wealth or retirement savings.',
+      howToRead:
+        'Each bar shows the percentage of adults who could cover a $400 emergency with cash or savings. Taller bars indicate greater financial resilience. Look for year-over-year trends: rising bars suggest improving household finances, while falling bars indicate growing financial vulnerability.',
       chartData: data.financialCushion.data.map((d) => ({
         label: d.year.toString(),
         value: d.canCover400,

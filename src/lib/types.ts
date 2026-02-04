@@ -16,6 +16,7 @@ export interface Metric {
   description: string;
   whyItMatters: string;
   commonMisinterpretation: string;
+  howToRead: string;
   chartData: ChartDataPoint[];
   chartType: 'line' | 'bar';
   isFallback?: boolean;
