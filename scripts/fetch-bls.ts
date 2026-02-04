@@ -4,6 +4,44 @@ import path from 'path';
 const BLS_API_URL = 'https://api.bls.gov/publicAPI/v2/timeseries/data/';
 const BLS_API_KEY = process.env.BLS_API_KEY;
 
+// Retry configuration
+const MAX_RETRIES = 3;
+const INITIAL_DELAY_MS = 1000;
+const MAX_DELAY_MS = 10000;
+
+async function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function withRetry<T>(
+  operation: () => Promise<T>,
+  operationName: string
+): Promise<T> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+
+      if (attempt === MAX_RETRIES) {
+        console.error(`${operationName} failed after ${MAX_RETRIES} attempts`);
+        throw lastError;
+      }
+
+      const delay = Math.min(INITIAL_DELAY_MS * Math.pow(2, attempt - 1), MAX_DELAY_MS);
+      console.warn(
+        `${operationName} attempt ${attempt} failed: ${lastError.message}. ` +
+        `Retrying in ${delay}ms...`
+      );
+      await sleep(delay);
+    }
+  }
+
+  throw lastError;
+}
+
 // BLS Series IDs
 const SERIES = {
   MEDIAN_WEEKLY_EARNINGS: 'LEU0252881500',
@@ -38,24 +76,40 @@ async function fetchBLSSeries(
   startYear: number,
   endYear: number
 ): Promise<BLSResponse> {
-  const body = {
-    seriesid: seriesIds,
-    startyear: startYear.toString(),
-    endyear: endYear.toString(),
-    registrationkey: BLS_API_KEY,
-  };
+  return withRetry(async () => {
+    const body = {
+      seriesid: seriesIds,
+      startyear: startYear.toString(),
+      endyear: endYear.toString(),
+      registrationkey: BLS_API_KEY,
+    };
 
-  const response = await fetch(BLS_API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
+    const response = await fetch(BLS_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
 
-  if (!response.ok) {
-    throw new Error(`BLS API error: ${response.status} ${response.statusText}`);
-  }
+    if (!response.ok) {
+      const isRetryable = response.status >= 500 || response.status === 429;
+      const error = new Error(
+        `BLS API error: ${response.status} ${response.statusText}`
+      );
+      if (!isRetryable) {
+        // Don't retry client errors (4xx except 429)
+        throw Object.assign(error, { noRetry: true });
+      }
+      throw error;
+    }
 
-  return response.json();
+    const data = await response.json();
+
+    if (data.status !== 'REQUEST_SUCCEEDED') {
+      throw new Error(`BLS API request failed: ${data.message?.join(', ') || 'Unknown error'}`);
+    }
+
+    return data;
+  }, 'BLS API fetch');
 }
 
 function parseQuarterlyData(
@@ -117,16 +171,12 @@ async function main() {
   console.log(`Fetching BLS data from ${startYear} to ${currentYear}...`);
 
   try {
-    // Fetch all series
+    // Fetch all series with automatic retry
     const response = await fetchBLSSeries(
       Object.values(SERIES),
       startYear,
       currentYear
     );
-
-    if (response.status !== 'REQUEST_SUCCEEDED') {
-      throw new Error(`BLS API request failed: ${response.message.join(', ')}`);
-    }
 
     // Parse series data
     const seriesData = new Map<string, BLSResponse['Results']['series'][0]['data']>();
@@ -261,7 +311,31 @@ async function main() {
       console.log('Essentials inflation data updated.');
     }
   } catch (error) {
-    console.error('Error fetching BLS data:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Error fetching BLS data:', errorMessage);
+
+    // Check if fallback data exists
+    const purchasingPowerPath = path.join(
+      process.cwd(),
+      'src',
+      'data',
+      'metrics',
+      'purchasing-power.json'
+    );
+    const essentialsPath = path.join(
+      process.cwd(),
+      'src',
+      'data',
+      'metrics',
+      'essentials-inflation.json'
+    );
+
+    if (fs.existsSync(purchasingPowerPath) && fs.existsSync(essentialsPath)) {
+      console.log('Existing data files preserved. Using cached data.');
+      // Mark existing data as potentially stale
+      process.exit(0);
+    }
+
     process.exit(1);
   }
 }

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Metric } from '@/lib/types';
-import { MetricChart } from './MetricChart';
+import { MetricChartWrapper } from './MetricChartWrapper';
 import { formatValue, formatDate } from '@/lib/formatters';
 
 interface MetricCardProps {
@@ -81,7 +81,7 @@ export function MetricCard({ metric }: MetricCardProps) {
         </div>
 
         <div className="flex items-center justify-center">
-          <MetricChart metric={metric} />
+          <MetricChartWrapper metric={metric} />
         </div>
       </div>
     </section>
