@@ -48,3 +48,4 @@ terraform/.terraform.lock.hcl
 
 # Claude Code local settings
 .claude/
+src/data/raw/

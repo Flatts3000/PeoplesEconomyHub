@@ -1,20 +1,68 @@
 {
-  "value": 3.8,
-  "headlineCPI": 2.9,
+  "value": 2.5,
+  "headlineCPI": 2.7,
   "data": [
-    { "date": "Jan 2024", "essentials": 4.2, "headline": 3.1 },
-    { "date": "Feb 2024", "essentials": 4.0, "headline": 3.2 },
-    { "date": "Mar 2024", "essentials": 4.1, "headline": 3.5 },
-    { "date": "Apr 2024", "essentials": 4.3, "headline": 3.4 },
-    { "date": "May 2024", "essentials": 4.1, "headline": 3.3 },
-    { "date": "Jun 2024", "essentials": 3.9, "headline": 3.0 },
-    { "date": "Jul 2024", "essentials": 3.8, "headline": 2.9 },
-    { "date": "Aug 2024", "essentials": 3.7, "headline": 2.5 },
-    { "date": "Sep 2024", "essentials": 3.6, "headline": 2.4 },
-    { "date": "Oct 2024", "essentials": 3.7, "headline": 2.6 },
-    { "date": "Nov 2024", "essentials": 3.8, "headline": 2.7 },
-    { "date": "Dec 2024", "essentials": 3.8, "headline": 2.9 }
+    {
+      "date": "December 2024",
+      "essentials": 2.8,
+      "headline": 2.9
+    },
+    {
+      "date": "January 2025",
+      "essentials": 3.2,
+      "headline": 3
+    },
+    {
+      "date": "February 2025",
+      "essentials": 2.8,
+      "headline": 2.8
+    },
+    {
+      "date": "March 2025",
+      "essentials": 1.9,
+      "headline": 2.4
+    },
+    {
+      "date": "April 2025",
+      "essentials": 1.7,
+      "headline": 2.3
+    },
+    {
+      "date": "May 2025",
+      "essentials": 1.7,
+      "headline": 2.4
+    },
+    {
+      "date": "June 2025",
+      "essentials": 2.3,
+      "headline": 2.7
+    },
+    {
+      "date": "July 2025",
+      "essentials": 2.2,
+      "headline": 2.7
+    },
+    {
+      "date": "August 2025",
+      "essentials": 2.6,
+      "headline": 2.9
+    },
+    {
+      "date": "September 2025",
+      "essentials": 3,
+      "headline": 3
+    },
+    {
+      "date": "November 2025",
+      "essentials": 2.6,
+      "headline": 2.7
+    },
+    {
+      "date": "December 2025",
+      "essentials": 2.5,
+      "headline": 2.7
+    }
   ],
-  "lastUpdated": "2025-01-10T08:30:00-05:00",
-  "isFallback": true
+  "lastUpdated": "2026-02-04T15:14:07.965Z",
+  "isFallback": false
 }

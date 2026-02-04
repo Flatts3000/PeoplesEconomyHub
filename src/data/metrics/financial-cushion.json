@@ -4,13 +4,31 @@
   "has3MonthSavings": 55,
   "year": 2024,
   "data": [
-    { "year": 2019, "canCover400": 61 },
-    { "year": 2020, "canCover400": 64 },
-    { "year": 2021, "canCover400": 68 },
-    { "year": 2022, "canCover400": 63 },
-    { "year": 2023, "canCover400": 63 },
-    { "year": 2024, "canCover400": 63 }
+    {
+      "year": 2019,
+      "canCover400": 61
+    },
+    {
+      "year": 2020,
+      "canCover400": 64
+    },
+    {
+      "year": 2021,
+      "canCover400": 68
+    },
+    {
+      "year": 2022,
+      "canCover400": 63
+    },
+    {
+      "year": 2023,
+      "canCover400": 63
+    },
+    {
+      "year": 2024,
+      "canCover400": 63
+    }
   ],
-  "lastUpdated": "2025-05-15T09:00:00-04:00",
-  "isFallback": true
+  "lastUpdated": "2026-02-04T15:14:26.637Z",
+  "isFallback": false
 }

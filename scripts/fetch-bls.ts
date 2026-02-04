@@ -164,28 +164,48 @@ async function fetchBLSSeries(
 function parseQuarterlyData(
   data: BLSResponse['Results']['series'][0]['data']
 ): { date: string; value: number }[] {
-  // Filter to Q1 data points (M01, M02, M03 average or just use quarterly)
   const quarterlyData: { date: string; value: number }[] = [];
 
   // Group by year and quarter
   const grouped = new Map<string, number[]>();
 
   for (const point of data) {
+    // Skip invalid values (e.g., "-" for missing data)
+    if (point.value === '-' || point.value === '' || point.value === null) {
+      continue;
+    }
+
+    const parsedValue = parseFloat(point.value);
+    if (isNaN(parsedValue)) {
+      continue;
+    }
+
     const year = point.year;
-    const month = parseInt(point.period.replace('M', ''));
-    const quarter = Math.ceil(month / 3);
+    // Handle both quarterly (Q01, Q02) and monthly (M01, M02) periods
+    let quarter: number;
+    if (point.period.startsWith('Q')) {
+      quarter = parseInt(point.period.replace('Q', '').replace('0', ''));
+    } else {
+      const month = parseInt(point.period.replace('M', ''));
+      quarter = Math.ceil(month / 3);
+    }
     const key = `Q${quarter} ${year}`;
 
     if (!grouped.has(key)) {
       grouped.set(key, []);
     }
-    grouped.get(key)!.push(parseFloat(point.value));
+    grouped.get(key)!.push(parsedValue);
   }
 
-  // Average each quarter
+  // Average each quarter (filter out any with NaN)
   for (const [key, values] of grouped) {
-    const avg = values.reduce((a, b) => a + b, 0) / values.length;
-    quarterlyData.push({ date: key, value: avg });
+    const validValues = values.filter((v) => !isNaN(v));
+    if (validValues.length === 0) continue;
+
+    const avg = validValues.reduce((a, b) => a + b, 0) / validValues.length;
+    if (!isNaN(avg)) {
+      quarterlyData.push({ date: key, value: avg });
+    }
   }
 
   // Sort by date
@@ -202,6 +222,14 @@ function parseMonthlyData(
   data: BLSResponse['Results']['series'][0]['data']
 ): { date: string; value: number }[] {
   return data
+    .filter((point) => {
+      // Skip invalid values
+      if (point.value === '-' || point.value === '' || point.value === null) {
+        return false;
+      }
+      const parsed = parseFloat(point.value);
+      return !isNaN(parsed);
+    })
     .map((point) => ({
       date: `${point.periodName} ${point.year}`,
       value: parseFloat(point.value),
@@ -255,25 +283,36 @@ async function main() {
       const earningsQuarterly = parseQuarterlyData(earningsData);
       const cpiQuarterly = parseQuarterlyData(cpiData);
 
-      // Calculate real wages
-      const realWages = earningsQuarterly.map((earning) => {
-        const cpi = cpiQuarterly.find((c) => c.date === earning.date);
-        const realValue = cpi ? earning.value / (cpi.value / 100) : earning.value;
-        return { date: earning.date, value: realValue };
-      });
+      // Calculate real wages (only where we have matching CPI data)
+      const realWages = earningsQuarterly
+        .map((earning) => {
+          const cpi = cpiQuarterly.find((c) => c.date === earning.date);
+          if (!cpi) return null;
+          const realValue = earning.value / (cpi.value / 100);
+          if (isNaN(realValue)) return null;
+          return { date: earning.date, value: realValue };
+        })
+        .filter((x): x is { date: string; value: number } => x !== null);
 
-      // Calculate YoY change
-      const yoyChanges = realWages.slice(4).map((current, i) => {
-        const prior = realWages[i];
-        const change = ((current.value - prior.value) / prior.value) * 100;
-        return { date: current.date, value: parseFloat(change.toFixed(1)) };
-      });
+      // Calculate YoY change (need at least 4 quarters of prior data)
+      const yoyChanges = realWages
+        .slice(4)
+        .map((current, i) => {
+          const prior = realWages[i];
+          if (!prior || prior.value === 0) return null;
+          const change = ((current.value - prior.value) / prior.value) * 100;
+          if (isNaN(change)) return null;
+          return { date: current.date, value: parseFloat(change.toFixed(1)) };
+        })
+        .filter((x): x is { date: string; value: number } => x !== null);
 
-      const latestValue = yoyChanges[yoyChanges.length - 1]?.value ?? 0;
+      // Get the latest valid value
+      const validYoyChanges = yoyChanges.filter((d) => !isNaN(d.value));
+      const latestValue = validYoyChanges[validYoyChanges.length - 1]?.value ?? 0;
 
       const purchasingPowerOutput = {
         value: latestValue,
-        data: yoyChanges.slice(-20),
+        data: validYoyChanges.slice(-20),
         lastUpdated: new Date().toISOString(),
         isFallback: false,
       };
@@ -319,21 +358,39 @@ async function main() {
       const medicalMonthly = parseMonthlyData(medicalData);
       const headlineMonthly = parseMonthlyData(headlineData);
 
-      const calculateYoY = (data: { value: number }[], index: number) => {
-        if (index < 12) return 0;
+      const calculateYoY = (data: { value: number }[], index: number): number | null => {
+        if (index < 12 || !data[index] || !data[index - 12]) return null;
         const current = data[index].value;
         const prior = data[index - 12].value;
-        return ((current - prior) / prior) * 100;
+        if (isNaN(current) || isNaN(prior) || prior === 0) return null;
+        const result = ((current - prior) / prior) * 100;
+        return isNaN(result) ? null : result;
       };
 
-      const essentialsData = shelterMonthly.slice(12).map((_, i) => {
-        const idx = i + 12;
-        const shelterYoY = calculateYoY(shelterMonthly, idx);
-        const foodYoY = calculateYoY(foodMonthly, idx);
-        const energyYoY = calculateYoY(energyMonthly, idx);
-        const transportYoY = calculateYoY(transportMonthly, idx);
-        const medicalYoY = calculateYoY(medicalMonthly, idx);
-        const headlineYoY = calculateYoY(headlineMonthly, idx);
+      // Find minimum length to avoid index out of bounds
+      const minLength = Math.min(
+        shelterMonthly.length,
+        foodMonthly.length,
+        energyMonthly.length,
+        transportMonthly.length,
+        medicalMonthly.length,
+        headlineMonthly.length
+      );
+
+      const essentialsData = [];
+      for (let i = 12; i < minLength; i++) {
+        const shelterYoY = calculateYoY(shelterMonthly, i);
+        const foodYoY = calculateYoY(foodMonthly, i);
+        const energyYoY = calculateYoY(energyMonthly, i);
+        const transportYoY = calculateYoY(transportMonthly, i);
+        const medicalYoY = calculateYoY(medicalMonthly, i);
+        const headlineYoY = calculateYoY(headlineMonthly, i);
+
+        // Skip if any component is null
+        if (shelterYoY === null || foodYoY === null || energyYoY === null ||
+            transportYoY === null || medicalYoY === null || headlineYoY === null) {
+          continue;
+        }
 
         const essentialsYoY =
           (weights.shelter * shelterYoY +
@@ -343,12 +400,14 @@ async function main() {
             weights.medical * medicalYoY) /
           totalWeight;
 
-        return {
-          date: shelterMonthly[idx].date,
-          essentials: parseFloat(essentialsYoY.toFixed(1)),
-          headline: parseFloat(headlineYoY.toFixed(1)),
-        };
-      });
+        if (!isNaN(essentialsYoY)) {
+          essentialsData.push({
+            date: shelterMonthly[i].date,
+            essentials: parseFloat(essentialsYoY.toFixed(1)),
+            headline: parseFloat(headlineYoY.toFixed(1)),
+          });
+        }
+      }
 
       const latestEssentials = essentialsData[essentialsData.length - 1];
 
