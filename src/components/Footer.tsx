@@ -1,7 +1,31 @@
 import Link from 'next/link';
+import purchasingPowerData from '@/data/metrics/purchasing-power.json';
+import essentialsInflationData from '@/data/metrics/essentials-inflation.json';
+import financialCushionData from '@/data/metrics/financial-cushion.json';
+
+function formatLastUpdated(isoString: string): string {
+  const date = new Date(isoString);
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+function getLatestUpdate(): string {
+  const dates = [
+    purchasingPowerData.lastUpdated,
+    essentialsInflationData.lastUpdated,
+    financialCushionData.lastUpdated,
+  ].map((d) => new Date(d).getTime());
+
+  const mostRecent = new Date(Math.max(...dates));
+  return formatLastUpdated(mostRecent.toISOString());
+}
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const lastUpdated = getLatestUpdate();
 
   return (
     <footer className="bg-surface border-t border-gray-200 mt-16">
@@ -15,6 +39,9 @@ export function Footer() {
               A not-for-profit platform helping everyday Americans understand
               how the economy affects their households through clear,
               transparent metrics.
+            </p>
+            <p className="text-muted text-xs mt-4">
+              Data last updated: {lastUpdated}
             </p>
           </div>
 

@@ -1,7 +1,56 @@
 import fs from 'fs';
 import path from 'path';
+import { z } from 'zod';
 
 const BLS_API_URL = 'https://api.bls.gov/publicAPI/v2/timeseries/data/';
+
+// Validation schemas (inline to avoid import issues with tsx runner)
+const ChartDataPointSchema = z.object({
+  date: z.string().min(1),
+  value: z.number(),
+});
+
+const PurchasingPowerSchema = z.object({
+  value: z.number().min(-50).max(50),
+  data: z.array(ChartDataPointSchema).min(1),
+  lastUpdated: z.string().min(1),
+  isFallback: z.boolean().optional(),
+});
+
+const EssentialsInflationDataPointSchema = z.object({
+  date: z.string().min(1),
+  essentials: z.number(),
+  headline: z.number(),
+});
+
+const EssentialsInflationSchema = z.object({
+  value: z.number().min(-20).max(50),
+  headlineCPI: z.number().min(-20).max(50),
+  data: z.array(EssentialsInflationDataPointSchema).min(1),
+  lastUpdated: z.string().min(1),
+  isFallback: z.boolean().optional(),
+});
+
+function validateAndWrite<T>(
+  data: unknown,
+  schema: z.ZodSchema<T>,
+  filePath: string,
+  metricName: string
+): boolean {
+  const result = schema.safeParse(data);
+
+  if (!result.success) {
+    const errors = result.error.issues
+      .map((issue) => `  - ${issue.path.join('.')}: ${issue.message}`)
+      .join('\n');
+    console.error(`Validation failed for ${metricName}:\n${errors}`);
+    return false;
+  }
+
+  fs.writeFileSync(filePath, JSON.stringify(result.data, null, 2));
+  console.log(`${metricName} data validated and saved.`);
+  return true;
+}
 const BLS_API_KEY = process.env.BLS_API_KEY;
 
 // Retry configuration
@@ -229,12 +278,20 @@ async function main() {
         isFallback: false,
       };
 
-      fs.writeFileSync(
-        path.join(process.cwd(), 'src', 'data', 'metrics', 'purchasing-power.json'),
-        JSON.stringify(purchasingPowerOutput, null, 2)
+      const purchasingPowerPath = path.join(
+        process.cwd(),
+        'src',
+        'data',
+        'metrics',
+        'purchasing-power.json'
       );
 
-      console.log('Purchasing power data updated.');
+      validateAndWrite(
+        purchasingPowerOutput,
+        PurchasingPowerSchema,
+        purchasingPowerPath,
+        'Purchasing Power'
+      );
     }
 
     // Process essentials inflation data
@@ -303,12 +360,20 @@ async function main() {
         isFallback: false,
       };
 
-      fs.writeFileSync(
-        path.join(process.cwd(), 'src', 'data', 'metrics', 'essentials-inflation.json'),
-        JSON.stringify(essentialsOutput, null, 2)
+      const essentialsPath = path.join(
+        process.cwd(),
+        'src',
+        'data',
+        'metrics',
+        'essentials-inflation.json'
       );
 
-      console.log('Essentials inflation data updated.');
+      validateAndWrite(
+        essentialsOutput,
+        EssentialsInflationSchema,
+        essentialsPath,
+        'Essentials Inflation'
+      );
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);

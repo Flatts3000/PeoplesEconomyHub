@@ -1,5 +1,6 @@
 import { Hero } from '@/components/Hero';
 import { MetricCard } from '@/components/MetricCard';
+import { DataFreshness } from '@/components/DataFreshness';
 import { getMetrics } from '@/lib/metrics';
 
 export default function Home() {
@@ -10,9 +11,12 @@ export default function Home() {
       <Hero metrics={metrics} />
 
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h2 className="text-3xl font-bold text-neutral mb-8 text-center">
-          Understanding the Numbers
-        </h2>
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-3xl font-bold text-neutral">
+            Understanding the Numbers
+          </h2>
+          <DataFreshness />
+        </div>
 
         <div className="space-y-8">
           {metrics.map((metric) => (

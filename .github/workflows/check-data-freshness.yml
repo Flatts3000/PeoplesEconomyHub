@@ -1,0 +1,92 @@
+name: Check Data Freshness
+
+on:
+  schedule:
+    # Run daily at 9 AM UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+jobs:
+  check-freshness:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check data freshness
+        id: check
+        run: |
+          # Define stale threshold (7 days in seconds)
+          STALE_THRESHOLD=$((7 * 24 * 60 * 60))
+          NOW=$(date +%s)
+          STALE_FILES=""
+
+          # Check each metric file
+          for file in src/data/metrics/*.json; do
+            if [ -f "$file" ]; then
+              LAST_UPDATED=$(jq -r '.lastUpdated' "$file" 2>/dev/null)
+              if [ -n "$LAST_UPDATED" ] && [ "$LAST_UPDATED" != "null" ]; then
+                FILE_TIME=$(date -d "$LAST_UPDATED" +%s 2>/dev/null || echo "0")
+                AGE=$((NOW - FILE_TIME))
+                DAYS_OLD=$((AGE / 86400))
+
+                if [ $AGE -gt $STALE_THRESHOLD ]; then
+                  FILENAME=$(basename "$file")
+                  STALE_FILES="${STALE_FILES}- **${FILENAME}**: ${DAYS_OLD} days old (last updated: ${LAST_UPDATED})\n"
+                fi
+              fi
+            fi
+          done
+
+          if [ -n "$STALE_FILES" ]; then
+            echo "stale=true" >> $GITHUB_OUTPUT
+            echo "files<<EOF" >> $GITHUB_OUTPUT
+            echo -e "$STALE_FILES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "stale=false" >> $GITHUB_OUTPUT
+            echo "All data files are current."
+          fi
+
+      - name: Check for existing issue
+        if: steps.check.outputs.stale == 'true'
+        id: existing
+        run: |
+          EXISTING=$(gh issue list --label "stale-data" --state open --json number --jq 'length')
+          echo "count=$EXISTING" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create or update issue
+        if: steps.check.outputs.stale == 'true' && steps.existing.outputs.count == '0'
+        run: |
+          gh issue create \
+            --title "Data freshness alert: Metrics data is stale" \
+            --label "stale-data,automated" \
+            --body "## Stale Data Alert
+
+          The following metric data files have not been updated in over 7 days:
+
+          ${{ steps.check.outputs.files }}
+
+          ### Recommended Actions
+          1. Check if the data update workflow is running correctly
+          2. Verify API keys are still valid
+          3. Manually trigger the update-data workflow if needed
+
+          This issue was automatically created by the data freshness check workflow."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Close stale issue if data is fresh
+        if: steps.check.outputs.stale == 'false'
+        run: |
+          ISSUE_NUMBER=$(gh issue list --label "stale-data" --state open --json number --jq '.[0].number')
+          if [ -n "$ISSUE_NUMBER" ]; then
+            gh issue close "$ISSUE_NUMBER" --comment "Data has been refreshed. Closing this alert."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

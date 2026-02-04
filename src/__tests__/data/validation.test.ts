@@ -1,50 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { z } from 'zod';
 import purchasingPowerData from '@/data/metrics/purchasing-power.json';
 import essentialsInflationData from '@/data/metrics/essentials-inflation.json';
 import financialCushionData from '@/data/metrics/financial-cushion.json';
-
-// Schema definitions
-const ChartDataPointSchema = z.object({
-  date: z.string().min(1),
-  value: z.number(),
-});
-
-const PurchasingPowerSchema = z.object({
-  value: z.number().min(-50).max(50),
-  data: z.array(ChartDataPointSchema).min(1),
-  lastUpdated: z.string().min(1),
-  isFallback: z.boolean().optional(),
-});
-
-const EssentialsInflationDataPointSchema = z.object({
-  date: z.string().min(1),
-  essentials: z.number(),
-  headline: z.number(),
-});
-
-const EssentialsInflationSchema = z.object({
-  value: z.number().min(-20).max(50),
-  headlineCPI: z.number().min(-20).max(50),
-  data: z.array(EssentialsInflationDataPointSchema).min(1),
-  lastUpdated: z.string().min(1),
-  isFallback: z.boolean().optional(),
-});
-
-const FinancialCushionDataPointSchema = z.object({
-  year: z.number().int().min(2000).max(2100),
-  canCover400: z.number().min(0).max(100),
-});
-
-const FinancialCushionSchema = z.object({
-  canCover400: z.number().min(0).max(100),
-  cannotCover400: z.number().min(0).max(100),
-  has3MonthSavings: z.number().min(0).max(100),
-  year: z.number().int().min(2000).max(2100),
-  data: z.array(FinancialCushionDataPointSchema).min(1),
-  lastUpdated: z.string().min(1),
-  isFallback: z.boolean().optional(),
-});
+import {
+  PurchasingPowerSchema,
+  EssentialsInflationSchema,
+  FinancialCushionSchema,
+} from '@/lib/schemas';
 
 describe('Data Validation: Purchasing Power', () => {
   it('validates against schema', () => {

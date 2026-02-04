@@ -14,3 +14,4 @@ export {
   HeroSkeleton,
   ArticleCardSkeleton,
 } from './Skeleton';
+export { DataFreshness, DataFreshnessBadge } from './DataFreshness';
