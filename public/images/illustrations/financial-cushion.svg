@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Background -->
+  <circle cx="100" cy="100" r="90" fill="#dbeafe" opacity="0.4"/>
+
+  <!-- Safety net pattern -->
+  <g stroke="#3b82f6" stroke-width="1.5" opacity="0.5">
+    <path d="M20 150 Q60 170 100 150 Q140 130 180 150"/>
+    <path d="M20 165 Q60 185 100 165 Q140 145 180 165"/>
+    <line x1="40" y1="145" x2="40" y2="175"/>
+    <line x1="70" y1="155" x2="70" y2="180"/>
+    <line x1="100" y1="150" x2="100" y2="165"/>
+    <line x1="130" y1="140" x2="130" y2="165"/>
+    <line x1="160" y1="150" x2="160" y2="175"/>
+  </g>
+
+  <!-- Piggy bank -->
+  <g transform="translate(50, 50)">
+    <!-- Body -->
+    <ellipse cx="60" cy="60" rx="55" ry="45" fill="#93c5fd"/>
+    <ellipse cx="60" cy="60" rx="55" ry="45" fill="none" stroke="#1e40af" stroke-width="2"/>
+
+    <!-- Ear -->
+    <ellipse cx="30" cy="30" rx="12" ry="18" fill="#93c5fd" stroke="#1e40af" stroke-width="2"/>
+
+    <!-- Snout -->
+    <ellipse cx="110" cy="65" rx="18" ry="14" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+    <circle cx="105" cy="62" r="3" fill="#1e40af"/>
+    <circle cx="115" cy="62" r="3" fill="#1e40af"/>
+
+    <!-- Eye -->
+    <circle cx="75" cy="45" r="5" fill="#1f2937"/>
+    <circle cx="77" cy="43" r="2" fill="white"/>
+
+    <!-- Coin slot -->
+    <rect x="45" y="18" width="25" height="5" rx="2" fill="#1e40af"/>
+
+    <!-- Legs -->
+    <rect x="25" y="95" width="15" height="20" rx="4" fill="#93c5fd" stroke="#1e40af" stroke-width="2"/>
+    <rect x="75" y="95" width="15" height="20" rx="4" fill="#93c5fd" stroke="#1e40af" stroke-width="2"/>
+  </g>
+
+  <!-- Coins going in -->
+  <g transform="translate(95, 15)">
+    <ellipse cx="15" cy="5" rx="12" ry="4" fill="#2563eb" stroke="#1e40af" stroke-width="1"/>
+    <text x="15" y="8" text-anchor="middle" fill="white" font-size="8" font-weight="bold">$</text>
+  </g>
+  <g transform="translate(115, 25)">
+    <ellipse cx="10" cy="4" rx="9" ry="3" fill="#3b82f6" stroke="#1e40af" stroke-width="1"/>
+  </g>
+
+  <!-- Shield/protection symbol -->
+  <g transform="translate(145, 75)">
+    <path d="M20 5 L35 12 L35 28 Q35 42 20 50 Q5 42 5 28 L5 12 Z" fill="#3d7c47"/>
+    <path d="M13 27 L18 32 L28 20" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>

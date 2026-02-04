@@ -7,7 +7,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor: '#047857',
+  themeColor: '#3d7c47',
 };
 
 export const metadata: Metadata = {
@@ -15,6 +15,12 @@ export const metadata: Metadata = {
   description:
     'Understanding how the economy affects American households through clear, household-centered metrics.',
   metadataBase: new URL('https://peopleseconomyhub.github.io'),
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: '/favicon.svg',
+  },
   openGraph: {
     title: "People's Economy Hub",
     description:

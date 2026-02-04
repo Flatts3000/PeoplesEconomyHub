@@ -13,6 +13,9 @@ const ChartDataPointSchema = z.object({
 const PurchasingPowerSchema = z.object({
   value: z.number().min(-50).max(50),
   data: z.array(ChartDataPointSchema).min(1),
+  cumulativeValue: z.number().min(-100).max(200),
+  cumulativeData: z.array(ChartDataPointSchema).min(1),
+  baselineDate: z.string().min(1),
   lastUpdated: z.string().min(1),
   isFallback: z.boolean().optional(),
 });
@@ -243,7 +246,7 @@ async function main() {
   }
 
   const currentYear = new Date().getFullYear();
-  const startYear = currentYear - 5;
+  const startYear = currentYear - 10; // Fetch 10 years of historical data
 
   console.log(`Fetching BLS data from ${startYear} to ${currentYear}...`);
 
@@ -310,9 +313,21 @@ async function main() {
       const validYoyChanges = yoyChanges.filter((d) => !isNaN(d.value));
       const latestValue = validYoyChanges[validYoyChanges.length - 1]?.value ?? 0;
 
+      // Calculate cumulative change (indexed to first quarter = 100)
+      const baselineValue = realWages[0]?.value ?? 1;
+      const baselineDate = realWages[0]?.date ?? 'Q1 2017';
+      const cumulativeData = realWages.map((d) => ({
+        date: d.date,
+        value: parseFloat((((d.value - baselineValue) / baselineValue) * 100).toFixed(1)),
+      }));
+      const latestCumulative = cumulativeData[cumulativeData.length - 1]?.value ?? 0;
+
       const purchasingPowerOutput = {
         value: latestValue,
-        data: validYoyChanges.slice(-20),
+        data: validYoyChanges.slice(-40),
+        cumulativeValue: latestCumulative,
+        cumulativeData: cumulativeData.slice(-40),
+        baselineDate: baselineDate,
         lastUpdated: new Date().toISOString(),
         isFallback: false,
       };

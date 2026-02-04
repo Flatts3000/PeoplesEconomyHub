@@ -1,0 +1,152 @@
+{
+  "value": 0.35,
+  "isRecessionSignal": false,
+  "data": [
+    {
+      "date": "Nov 2022",
+      "value": 0.03
+    },
+    {
+      "date": "Dec 2022",
+      "value": -0.07
+    },
+    {
+      "date": "Jan 2023",
+      "value": 0
+    },
+    {
+      "date": "Feb 2023",
+      "value": 0
+    },
+    {
+      "date": "Mar 2023",
+      "value": 0
+    },
+    {
+      "date": "Apr 2023",
+      "value": 0.03
+    },
+    {
+      "date": "May 2023",
+      "value": 0.07
+    },
+    {
+      "date": "Jun 2023",
+      "value": 0.1
+    },
+    {
+      "date": "Jul 2023",
+      "value": 0.13
+    },
+    {
+      "date": "Aug 2023",
+      "value": 0.2
+    },
+    {
+      "date": "Sep 2023",
+      "value": 0.33
+    },
+    {
+      "date": "Oct 2023",
+      "value": 0.3
+    },
+    {
+      "date": "Nov 2023",
+      "value": 0.23
+    },
+    {
+      "date": "Dec 2023",
+      "value": 0.2
+    },
+    {
+      "date": "Jan 2024",
+      "value": 0.27
+    },
+    {
+      "date": "Feb 2024",
+      "value": 0.3
+    },
+    {
+      "date": "Mar 2024",
+      "value": 0.37
+    },
+    {
+      "date": "Apr 2024",
+      "value": 0.37
+    },
+    {
+      "date": "May 2024",
+      "value": 0.43
+    },
+    {
+      "date": "Jun 2024",
+      "value": 0.53
+    },
+    {
+      "date": "Jul 2024",
+      "value": 0.57
+    },
+    {
+      "date": "Aug 2024",
+      "value": 0.5
+    },
+    {
+      "date": "Sep 2024",
+      "value": 0.43
+    },
+    {
+      "date": "Oct 2024",
+      "value": 0.43
+    },
+    {
+      "date": "Nov 2024",
+      "value": 0.4
+    },
+    {
+      "date": "Dec 2024",
+      "value": 0.37
+    },
+    {
+      "date": "Jan 2025",
+      "value": 0.27
+    },
+    {
+      "date": "Feb 2025",
+      "value": 0.27
+    },
+    {
+      "date": "Mar 2025",
+      "value": 0.27
+    },
+    {
+      "date": "Apr 2025",
+      "value": 0.27
+    },
+    {
+      "date": "May 2025",
+      "value": 0.17
+    },
+    {
+      "date": "Jun 2025",
+      "value": 0.1
+    },
+    {
+      "date": "Jul 2025",
+      "value": 0.13
+    },
+    {
+      "date": "Aug 2025",
+      "value": 0.23
+    },
+    {
+      "date": "Oct 2025",
+      "value": 0.43
+    },
+    {
+      "date": "Nov 2025",
+      "value": 0.35
+    }
+  ],
+  "lastUpdated": "2026-02-04T22:44:58.770Z",
+  "isFallback": false
+}

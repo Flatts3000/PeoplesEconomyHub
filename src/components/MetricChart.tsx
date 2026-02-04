@@ -31,23 +31,44 @@ interface MetricChartProps {
 }
 
 export function MetricChart({ metric }: MetricChartProps) {
+  const isBarChart = metric.chartType === 'bar';
+
+  // Use neutral blue to avoid value judgments
+  const borderColor = '#1e40af'; // blue-800
+  const backgroundColor = isBarChart
+    ? '#3b82f6' // blue-500 solid for bars
+    : 'rgba(30, 64, 175, 0.15)'; // blue-800 transparent for line fill
+
   const chartData = {
     labels: metric.chartData.map((d) => d.label),
     datasets: [
       {
         label: metric.title,
         data: metric.chartData.map((d) => d.value),
-        borderColor:
-          metric.positiveDirection === 'up' ? '#047857' : '#b91c1c',
-        backgroundColor:
-          metric.positiveDirection === 'up'
-            ? 'rgba(4, 120, 87, 0.1)'
-            : 'rgba(185, 28, 28, 0.1)',
+        borderColor,
+        backgroundColor,
         tension: 0.3,
         fill: true,
+        borderRadius: isBarChart ? 4 : 0,
       },
     ],
   };
+
+  // Calculate smart Y-axis bounds for percentage data
+  const values = metric.chartData.map((d) => d.value);
+  const minValue = Math.min(...values);
+  const maxValue = Math.max(...values);
+
+  // For percentage data (like financial cushion), use a tighter range
+  // that shows variation while keeping context
+  const isPercentageData = metric.format === 'percentage';
+  const padding = isPercentageData ? 10 : 0;
+  const suggestedMin = isPercentageData
+    ? Math.max(0, Math.floor((minValue - padding) / 10) * 10)
+    : undefined;
+  const suggestedMax = isPercentageData
+    ? Math.min(100, Math.ceil((maxValue + padding) / 10) * 10)
+    : undefined;
 
   const options = {
     responsive: true,
@@ -69,7 +90,9 @@ export function MetricChart({ metric }: MetricChartProps) {
     },
     scales: {
       y: {
-        beginAtZero: metric.format === 'percentage',
+        beginAtZero: false,
+        suggestedMin,
+        suggestedMax,
         ticks: {
           callback: (value: string | number) => {
             const numValue = typeof value === 'string' ? parseFloat(value) : value;

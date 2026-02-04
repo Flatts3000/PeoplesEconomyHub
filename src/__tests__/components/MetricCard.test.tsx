@@ -3,17 +3,24 @@ import { render, screen } from '@testing-library/react';
 import { MetricCard } from '@/components/MetricCard';
 import { Metric } from '@/lib/types';
 
-// Mock the MetricChartWrapper component since it uses Chart.js
-vi.mock('@/components/MetricChartWrapper', () => ({
-  MetricChartWrapper: ({ metric }: { metric: Metric }) => (
+// Mock the MetricChartSection component since it uses Chart.js
+vi.mock('@/components/MetricChartSection', () => ({
+  MetricChartSection: ({ metric }: { metric: Metric }) => (
     <div data-testid="mock-chart">{metric.title} Chart</div>
+  ),
+}));
+
+// Mock MetricIcon component
+vi.mock('@/components/MetricIcon', () => ({
+  MetricIcon: ({ icon, className, 'aria-label': ariaLabel }: { icon: string; className?: string; 'aria-label'?: string }) => (
+    <span data-testid="metric-icon" className={className} aria-label={ariaLabel}>{icon}</span>
   ),
 }));
 
 const mockMetric: Metric = {
   id: 'test-metric',
   title: 'Test Metric',
-  icon: '📊',
+  icon: 'wallet',
   value: 2.5,
   format: 'percent',
   trendDirection: 'up',
@@ -23,6 +30,7 @@ const mockMetric: Metric = {
   description: 'This is the full description of the metric.',
   whyItMatters: 'This explains why the metric matters.',
   commonMisinterpretation: 'This is a common misinterpretation.',
+  howToRead: 'This explains how to read the chart.',
   chartData: [
     { label: 'Q1 2024', value: 1.0 },
     { label: 'Q2 2024', value: 2.5 },
@@ -43,7 +51,7 @@ describe('MetricCard', () => {
 
   it('renders the icon', () => {
     render(<MetricCard metric={mockMetric} />);
-    expect(screen.getByText('📊')).toBeInTheDocument();
+    expect(screen.getByTestId('metric-icon')).toBeInTheDocument();
   });
 
   it('renders the description', () => {
@@ -82,7 +90,7 @@ describe('MetricCard', () => {
 
   it('renders methodology link', () => {
     render(<MetricCard metric={mockMetric} />);
-    const link = screen.getByText('View methodology →');
+    const link = screen.getByText('Methodology');
     expect(link).toHaveAttribute('href', '/methodology');
   });
 
@@ -105,13 +113,14 @@ describe('MetricCard', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('applies positive color for positive trend', () => {
+  it('applies neutral data color for value display', () => {
     render(<MetricCard metric={mockMetric} />);
     const valueElement = screen.getByText('+2.5%');
-    expect(valueElement).toHaveClass('text-positive');
+    // Using neutral data color to avoid value judgments
+    expect(valueElement).toHaveClass('text-data');
   });
 
-  it('applies negative color for negative trend', () => {
+  it('displays value with neutral styling regardless of trend direction', () => {
     const negativeMetric = {
       ...mockMetric,
       value: -1.5,
@@ -119,16 +128,17 @@ describe('MetricCard', () => {
     };
     render(<MetricCard metric={negativeMetric} />);
     const valueElement = screen.getByText('-1.5%');
-    expect(valueElement).toHaveClass('text-negative');
+    // All values use neutral data color
+    expect(valueElement).toHaveClass('text-data');
   });
 
   it('shows year-over-year label', () => {
     render(<MetricCard metric={mockMetric} />);
-    expect(screen.getByText('year-over-year')).toBeInTheDocument();
+    expect(screen.getByText('Year-over-year change')).toBeInTheDocument();
   });
 
   it('shows last updated date', () => {
     render(<MetricCard metric={mockMetric} />);
-    expect(screen.getByText(/Last updated: Jan 15, 2025/)).toBeInTheDocument();
+    expect(screen.getByText(/Updated Jan 15, 2025/)).toBeInTheDocument();
   });
 });

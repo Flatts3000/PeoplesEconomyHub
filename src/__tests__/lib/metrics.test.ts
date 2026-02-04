@@ -2,9 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { getMetrics } from '@/lib/metrics';
 
 describe('getMetrics', () => {
-  it('returns an array of three metrics', () => {
+  it('returns an array of six metrics', () => {
     const metrics = getMetrics();
-    expect(metrics).toHaveLength(3);
+    expect(metrics).toHaveLength(6);
   });
 
   it('returns purchasing power metric with required fields', () => {
@@ -44,6 +44,45 @@ describe('getMetrics', () => {
     expect(cushion?.positiveDirection).toBe('up');
     expect(typeof cushion?.value).toBe('number');
     expect(cushion?.chartData.length).toBeGreaterThan(0);
+  });
+
+  it('returns consumer sentiment metric with required fields', () => {
+    const metrics = getMetrics();
+    const sentiment = metrics.find((m) => m.id === 'consumer-sentiment');
+
+    expect(sentiment).toBeDefined();
+    expect(sentiment?.title).toBe('Consumer Sentiment');
+    expect(sentiment?.format).toBe('percentage');
+    expect(sentiment?.chartType).toBe('line');
+    expect(sentiment?.positiveDirection).toBe('up');
+    expect(typeof sentiment?.value).toBe('number');
+    expect(sentiment?.chartData.length).toBeGreaterThan(0);
+  });
+
+  it('returns sahm rule metric with required fields', () => {
+    const metrics = getMetrics();
+    const sahmRule = metrics.find((m) => m.id === 'sahm-rule');
+
+    expect(sahmRule).toBeDefined();
+    expect(sahmRule?.title).toBe('Recession Risk Indicator');
+    expect(sahmRule?.format).toBe('percent');
+    expect(sahmRule?.chartType).toBe('line');
+    expect(sahmRule?.positiveDirection).toBe('down');
+    expect(typeof sahmRule?.value).toBe('number');
+    expect(sahmRule?.chartData.length).toBeGreaterThan(0);
+  });
+
+  it('returns household debt metric with required fields', () => {
+    const metrics = getMetrics();
+    const debt = metrics.find((m) => m.id === 'household-debt');
+
+    expect(debt).toBeDefined();
+    expect(debt?.title).toBe('Household Debt Burden');
+    expect(debt?.format).toBe('percent');
+    expect(debt?.chartType).toBe('line');
+    expect(debt?.positiveDirection).toBe('down');
+    expect(typeof debt?.value).toBe('number');
+    expect(debt?.chartData.length).toBeGreaterThan(0);
   });
 
   it('all metrics have valid trend directions', () => {

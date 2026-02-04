@@ -10,6 +10,9 @@ export const ChartDataPointSchema = z.object({
 export const PurchasingPowerSchema = z.object({
   value: z.number().min(-50).max(50),
   data: z.array(ChartDataPointSchema).min(1),
+  cumulativeValue: z.number().min(-100).max(200).optional(),
+  cumulativeData: z.array(ChartDataPointSchema).optional(),
+  baselineDate: z.string().optional(),
   lastUpdated: z.string().min(1),
   isFallback: z.boolean().optional(),
 });
@@ -47,10 +50,67 @@ export const FinancialCushionSchema = z.object({
   isFallback: z.boolean().optional(),
 });
 
+// Income group data point schema
+export const IncomeGroupDataPointSchema = z.object({
+  date: z.string().min(1),
+  lowIncome: z.number(),
+  middleIncome: z.number(),
+  highIncome: z.number(),
+});
+
+// Purchasing Power by Income schema
+export const PurchasingPowerByIncomeSchema = z.object({
+  lowIncome: z.object({
+    value: z.number().min(-50).max(50),
+    label: z.string(),
+  }),
+  middleIncome: z.object({
+    value: z.number().min(-50).max(50),
+    label: z.string(),
+  }),
+  highIncome: z.object({
+    value: z.number().min(-50).max(50),
+    label: z.string(),
+  }),
+  data: z.array(IncomeGroupDataPointSchema).min(1),
+  lastUpdated: z.string().min(1),
+  isFallback: z.boolean().optional(),
+});
+
+// Consumer Sentiment metric schema
+export const ConsumerSentimentSchema = z.object({
+  value: z.number().min(0).max(200),
+  data: z.array(ChartDataPointSchema).min(1),
+  lastUpdated: z.string().min(1),
+  isFallback: z.boolean().optional(),
+});
+
+// Sahm Rule recession indicator schema
+export const SahmRuleSchema = z.object({
+  value: z.number().min(-5).max(10),
+  isRecessionSignal: z.boolean(),
+  data: z.array(ChartDataPointSchema).min(1),
+  lastUpdated: z.string().min(1),
+  isFallback: z.boolean().optional(),
+});
+
+// Household Debt Service Ratio schema
+export const HouseholdDebtSchema = z.object({
+  value: z.number().min(0).max(30),
+  data: z.array(ChartDataPointSchema).min(1),
+  lastUpdated: z.string().min(1),
+  isFallback: z.boolean().optional(),
+});
+
 // Type exports
 export type PurchasingPower = z.infer<typeof PurchasingPowerSchema>;
 export type EssentialsInflation = z.infer<typeof EssentialsInflationSchema>;
 export type FinancialCushion = z.infer<typeof FinancialCushionSchema>;
+export type PurchasingPowerByIncome = z.infer<typeof PurchasingPowerByIncomeSchema>;
+export type IncomeGroupDataPoint = z.infer<typeof IncomeGroupDataPointSchema>;
+export type ConsumerSentiment = z.infer<typeof ConsumerSentimentSchema>;
+export type SahmRule = z.infer<typeof SahmRuleSchema>;
+export type HouseholdDebt = z.infer<typeof HouseholdDebtSchema>;
 
 // Validation helper
 export function validateData<T>(

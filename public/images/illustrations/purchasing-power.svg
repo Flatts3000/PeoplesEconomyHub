@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="90" fill="#e8f3ea" opacity="0.4"/>
+
+  <!-- Wallet -->
+  <rect x="45" y="70" width="110" height="80" rx="8" fill="#3d7c47"/>
+  <rect x="50" y="75" width="100" height="70" rx="6" fill="#4a9956"/>
+  <rect x="55" y="80" width="90" height="25" fill="#326b3b"/>
+
+  <!-- Money coming out -->
+  <g transform="translate(70, 40)">
+    <rect x="0" y="0" width="60" height="35" rx="3" fill="#e8f3ea" stroke="#3d7c47" stroke-width="2"/>
+    <text x="30" y="24" text-anchor="middle" fill="#3d7c47" font-size="18" font-weight="bold">$</text>
+  </g>
+
+  <!-- Trend arrow up -->
+  <path d="M150 60 L170 35 L175 50 L185 50 L170 25 L155 50 L160 50 Z" fill="#2563eb"/>
+  <rect x="163" y="50" width="8" height="30" fill="#2563eb"/>
+
+  <!-- Percentage badge -->
+  <circle cx="45" cy="55" r="20" fill="#2563eb"/>
+  <text x="45" y="62" text-anchor="middle" fill="white" font-size="14" font-weight="bold">%</text>
+</svg>

@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" fill="none">
+  <!-- Background shapes -->
+  <circle cx="50" cy="100" r="40" fill="#e8f3ea" opacity="0.5"/>
+  <circle cx="350" cy="100" r="40" fill="#dbeafe" opacity="0.5"/>
+
+  <!-- Left side: Wall Street (stocks, abstract) -->
+  <g transform="translate(30, 50)">
+    <!-- Stock chart going up and down -->
+    <rect x="0" y="80" width="80" height="50" fill="#f1f5f9" rx="4"/>
+    <polyline points="10,110 25,95 40,105 55,85 70,90" stroke="#94a3b8" stroke-width="2" fill="none"/>
+    <text x="40" y="145" text-anchor="middle" fill="#64748b" font-size="11">Wall Street</text>
+  </g>
+
+  <!-- Arrow pointing right -->
+  <g transform="translate(130, 85)">
+    <line x1="0" y1="15" x2="50" y2="15" stroke="#3d7c47" stroke-width="3"/>
+    <polygon points="50,8 65,15 50,22" fill="#3d7c47"/>
+  </g>
+
+  <!-- Center: Translation/conversion -->
+  <g transform="translate(175, 40)">
+    <circle cx="25" cy="60" r="35" fill="#3d7c47"/>
+    <text x="25" y="55" text-anchor="middle" fill="white" font-size="10" font-weight="bold">PEOPLE'S</text>
+    <text x="25" y="68" text-anchor="middle" fill="white" font-size="10" font-weight="bold">ECONOMY</text>
+    <text x="25" y="81" text-anchor="middle" fill="#dbeafe" font-size="9" font-weight="bold">HUB</text>
+  </g>
+
+  <!-- Arrow pointing right -->
+  <g transform="translate(220, 85)">
+    <line x1="0" y1="15" x2="50" y2="15" stroke="#3d7c47" stroke-width="3"/>
+    <polygon points="50,8 65,15 50,22" fill="#3d7c47"/>
+  </g>
+
+  <!-- Right side: Main Street (family, home) -->
+  <g transform="translate(290, 45)">
+    <!-- Simple house -->
+    <path d="M40 50 L40 90 L80 90 L80 50" fill="#f8fafc" stroke="#3d7c47" stroke-width="2"/>
+    <path d="M30 55 L60 30 L90 55" fill="none" stroke="#3d7c47" stroke-width="3"/>
+    <rect x="52" y="65" width="16" height="25" fill="#3d7c47" rx="2"/>
+
+    <!-- Family figures (simplified) -->
+    <circle cx="35" cy="75" r="8" fill="#fcd9b6"/>
+    <circle cx="15" cy="78" r="7" fill="#fcd9b6"/>
+    <text x="50" y="115" text-anchor="middle" fill="#3d7c47" font-size="11" font-weight="500">Your Household</text>
+  </g>
+
+  <!-- Data points floating -->
+  <g fill="#2563eb" opacity="0.7">
+    <circle cx="150" cy="30" r="4"/>
+    <circle cx="250" cy="35" r="3"/>
+    <circle cx="180" cy="160" r="5"/>
+    <circle cx="220" cy="170" r="3"/>
+  </g>
+</svg>

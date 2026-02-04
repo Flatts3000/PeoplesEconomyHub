@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">
+  <!-- Background elements -->
+  <circle cx="650" cy="150" r="80" fill="#e8f3ea" opacity="0.6"/>
+  <circle cx="100" cy="450" r="60" fill="#dbeafe" opacity="0.6"/>
+
+  <!-- House -->
+  <path d="M200 350 L350 220 L500 350 L500 500 L200 500 Z" fill="#f8fafc" stroke="#3d7c47" stroke-width="3"/>
+  <path d="M200 350 L350 220 L500 350" fill="none" stroke="#3d7c47" stroke-width="4"/>
+  <rect x="310" y="400" width="80" height="100" fill="#3d7c47" rx="4"/>
+  <circle cx="375" cy="450" r="6" fill="#2563eb"/>
+  <rect x="230" y="320" width="60" height="50" fill="#dbeafe" stroke="#3d7c47" stroke-width="2"/>
+  <rect x="410" y="320" width="60" height="50" fill="#dbeafe" stroke="#3d7c47" stroke-width="2"/>
+
+  <!-- Family figures -->
+  <!-- Adult 1 -->
+  <circle cx="580" cy="340" r="30" fill="#fcd9b6"/>
+  <path d="M550 380 Q580 420 610 380 L630 500 L530 500 Z" fill="#3d7c47"/>
+
+  <!-- Adult 2 -->
+  <circle cx="680" cy="350" r="28" fill="#fcd9b6"/>
+  <path d="M652 385 Q680 420 708 385 L725 500 L635 500 Z" fill="#2563eb"/>
+
+  <!-- Child -->
+  <circle cx="630" cy="400" r="20" fill="#fcd9b6"/>
+  <path d="M610 420 Q630 450 650 420 L660 500 L600 500 Z" fill="#4a9956"/>
+
+  <!-- Financial elements floating -->
+  <!-- Dollar sign -->
+  <g transform="translate(120, 180)">
+    <circle cx="30" cy="30" r="28" fill="#3d7c47"/>
+    <text x="30" y="40" text-anchor="middle" fill="white" font-size="32" font-weight="bold">$</text>
+  </g>
+
+  <!-- Coins -->
+  <ellipse cx="720" cy="250" rx="25" ry="10" fill="#2563eb"/>
+  <ellipse cx="720" cy="245" rx="25" ry="10" fill="#3b82f6"/>
+  <ellipse cx="720" cy="240" rx="25" ry="10" fill="#2563eb"/>
+
+  <!-- Chart going up -->
+  <g transform="translate(80, 280)">
+    <rect x="0" y="40" width="15" height="30" fill="#3b82f6" rx="2"/>
+    <rect x="20" y="25" width="15" height="45" fill="#3b82f6" rx="2"/>
+    <rect x="40" y="10" width="15" height="60" fill="#2563eb" rx="2"/>
+  </g>
+
+  <!-- Shopping bag -->
+  <g transform="translate(700, 380)">
+    <rect x="0" y="20" width="50" height="60" fill="#f8fafc" stroke="#3d7c47" stroke-width="2" rx="4"/>
+    <path d="M10 20 Q10 0 25 0 Q40 0 40 20" fill="none" stroke="#3d7c47" stroke-width="3"/>
+  </g>
+</svg>

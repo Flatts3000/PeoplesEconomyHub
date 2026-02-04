@@ -3,6 +3,33 @@ export interface ChartDataPoint {
   value: number;
 }
 
+export interface IncomeGroupValue {
+  value: number;
+  label: string;
+}
+
+export interface IncomeGroupDataPoint {
+  date: string;
+  lowIncome: number;
+  middleIncome: number;
+  highIncome: number;
+}
+
+export interface IncomeBreakdownData {
+  lowIncome: IncomeGroupValue;
+  middleIncome: IncomeGroupValue;
+  highIncome: IncomeGroupValue;
+  data: IncomeGroupDataPoint[];
+  lastUpdated: string;
+  isFallback?: boolean;
+}
+
+export interface CumulativeData {
+  value: number;
+  data: ChartDataPoint[];
+  baselineDate: string;
+}
+
 export interface Metric {
   id: string;
   title: string;
@@ -22,6 +49,8 @@ export interface Metric {
   isFallback?: boolean;
   fallbackDate?: string;
   fallbackReason?: string;
+  incomeBreakdown?: IncomeBreakdownData;
+  cumulativeData?: CumulativeData;
 }
 
 export interface BLSResponse {
@@ -50,6 +79,9 @@ export interface MetricData {
   purchasingPower: {
     value: number;
     data: { date: string; value: number }[];
+    cumulativeValue?: number;
+    cumulativeData?: { date: string; value: number }[];
+    baselineDate?: string;
     lastUpdated: string;
     isFallback?: boolean;
   };

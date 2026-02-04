@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { Metric } from '@/lib/types';
-import { MetricChartWrapper } from './MetricChartWrapper';
-import { ChartHelp } from './ChartHelp';
+import { MetricChartSection } from './MetricChartSection';
 import { CiteButton } from './CiteButton';
 import { ShareButtons } from './ShareButtons';
+import { MetricIcon } from './MetricIcon';
 import { formatValue, formatDate } from '@/lib/formatters';
 
 interface MetricCardProps {
@@ -11,89 +11,114 @@ interface MetricCardProps {
 }
 
 export function MetricCard({ metric }: MetricCardProps) {
-  const isPositive =
-    metric.trendDirection === 'up'
-      ? metric.positiveDirection === 'up'
-      : metric.positiveDirection === 'down';
-
   return (
     <section
       id={metric.id}
-      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8"
+      aria-labelledby={`${metric.id}-title`}
+      className="bg-white rounded-2xl shadow-md border border-border overflow-hidden scroll-mt-24"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div>
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-4xl" role="img" aria-label={metric.title}>
-              {metric.icon}
-            </span>
-            <h2 className="text-2xl font-bold text-neutral">{metric.title}</h2>
-          </div>
-
-          <div className="flex items-baseline gap-3 mb-4">
-            <span
-              className={`text-4xl font-bold ${
-                isPositive ? 'text-positive' : 'text-negative'
-              }`}
+      <div className="grid grid-cols-1 lg:grid-cols-2">
+        {/* Content side */}
+        <div className="p-6 md:p-8 lg:p-10">
+          {/* Header */}
+          <header className="flex items-start gap-4 mb-6">
+            <div
+              className="w-14 h-14 rounded-xl flex items-center justify-center bg-secondary-subtle flex-shrink-0"
+              aria-hidden="true"
             >
-              {formatValue(metric.value, metric.format)}
-            </span>
-            <span className="text-muted">year-over-year</span>
+              <MetricIcon icon={metric.icon} className="text-2xl text-secondary" />
+            </div>
+            <div>
+              <h2
+                id={`${metric.id}-title`}
+                className="text-xl md:text-2xl font-bold text-neutral leading-tight"
+              >
+                {metric.title}
+              </h2>
+              <p className="text-sm text-muted mt-1">Year-over-year change</p>
+            </div>
+          </header>
+
+          {/* Current value */}
+          <div className="mb-6">
+            <div className="flex items-baseline gap-2">
+              <span className="text-5xl md:text-6xl font-bold tracking-tight text-data">
+                {formatValue(metric.value, metric.format)}
+              </span>
+            </div>
           </div>
 
+          {/* Fallback warning */}
           {metric.isFallback && (
-            <div className="bg-amber-50 border border-amber-200 rounded-md p-3 mb-4">
-              <p className="text-sm text-amber-800">
+            <div
+              className="bg-warning-bg border border-warning/30 rounded-xl p-4 mb-6"
+              role="alert"
+            >
+              <p className="text-sm text-warning font-medium">
                 Live data temporarily unavailable. Showing data as of{' '}
-                {metric.fallbackDate}.
+                <time dateTime={metric.fallbackDate}>{metric.fallbackDate}</time>.
               </p>
             </div>
           )}
 
-          <p className="text-neutral mb-4">{metric.description}</p>
+          {/* Description */}
+          <p className="text-neutral leading-relaxed mb-8">{metric.description}</p>
 
+          {/* Info cards */}
           <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-semibold text-neutral mb-1">
+            <div className="bg-surface rounded-xl p-5 border border-border/50">
+              <h3 className="text-sm font-semibold text-neutral mb-2 flex items-center gap-2">
+                <span
+                  className="w-1.5 h-1.5 rounded-full bg-primary"
+                  aria-hidden="true"
+                />
                 Why it matters
               </h3>
-              <p className="text-sm text-muted">{metric.whyItMatters}</p>
+              <p className="text-sm text-muted leading-relaxed">
+                {metric.whyItMatters}
+              </p>
             </div>
 
-            <div>
-              <h3 className="text-sm font-semibold text-neutral mb-1">
+            <div className="bg-surface rounded-xl p-5 border border-border/50">
+              <h3 className="text-sm font-semibold text-neutral mb-2 flex items-center gap-2">
+                <span
+                  className="w-1.5 h-1.5 rounded-full bg-secondary"
+                  aria-hidden="true"
+                />
                 Common misinterpretation
               </h3>
-              <p className="text-sm text-muted">
+              <p className="text-sm text-muted leading-relaxed">
                 {metric.commonMisinterpretation}
               </p>
             </div>
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center gap-4 text-sm">
-            <span className="text-muted">
-              Last updated: {formatDate(metric.lastUpdated)}
-            </span>
-            <Link
-              href="/methodology"
-              className="text-positive hover:underline font-medium"
-            >
-              View methodology →
-            </Link>
-            <CiteButton metric={metric} />
-            <ShareButtons
-              title={metric.title}
-              description={metric.summary}
-              url={`https://peopleseconomyhub.github.io/#${metric.id}`}
-            />
-          </div>
+          {/* Footer actions */}
+          <footer className="mt-8 pt-6 border-t border-border">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+              <time dateTime={metric.lastUpdated} className="text-muted">
+                Updated {formatDate(metric.lastUpdated)}
+              </time>
+              <span className="text-border" aria-hidden="true">|</span>
+              <Link
+                href="/methodology"
+                className="text-primary hover:text-primary-hover hover:underline font-medium transition-colors"
+              >
+                Methodology
+              </Link>
+              <CiteButton metric={metric} />
+              <ShareButtons
+                title={metric.title}
+                description={metric.summary}
+                url={`https://peopleseconomyhub.github.io/#${metric.id}`}
+              />
+            </div>
+          </footer>
         </div>
 
-        <div>
-          <div className="flex items-center justify-center">
-            <MetricChartWrapper metric={metric} />
-          </div>
-          <ChartHelp howToRead={metric.howToRead} />
+        {/* Chart side */}
+        <div className="bg-surface p-6 md:p-8 lg:p-10 flex flex-col justify-center border-t lg:border-t-0 lg:border-l border-border">
+          <MetricChartSection metric={metric} />
         </div>
       </div>
     </section>
