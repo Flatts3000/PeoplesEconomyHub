@@ -39,3 +39,44 @@ body {
 .prose a:hover {
   color: #065f46;
 }
+
+/* Accessibility: Focus indicators */
+:focus-visible {
+  outline: 2px solid var(--color-positive);
+  outline-offset: 2px;
+}
+
+/* Remove default focus outline when not using keyboard */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Skip to content link */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--color-positive);
+  color: white;
+  padding: 8px 16px;
+  z-index: 100;
+  text-decoration: none;
+  font-weight: 500;
+  transition: top 0.2s;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

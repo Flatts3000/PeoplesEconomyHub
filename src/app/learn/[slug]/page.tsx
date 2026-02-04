@@ -1,12 +1,18 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 
-const articles: Record<
-  string,
-  { title: string; content: React.ReactNode }
-> = {
+interface ArticleData {
+  title: string;
+  description: string;
+  content: React.ReactNode;
+}
+
+const articles: Record<string, ArticleData> = {
   'gdp-vs-wellbeing': {
     title: 'Why GDP ≠ Household Well-being',
+    description:
+      'Learn why GDP growth does not automatically mean families are better off, and why median measures matter more than averages.',
     content: (
       <>
         <p>
@@ -50,6 +56,8 @@ const articles: Record<
   },
   'mean-vs-median': {
     title: 'Mean vs. Median: Why It Matters',
+    description:
+      'Understand the difference between mean and median, and why median income better represents typical American households.',
     content: (
       <>
         <p>
@@ -86,6 +94,8 @@ const articles: Record<
   },
   'inflation-baskets': {
     title: 'Understanding Inflation Baskets',
+    description:
+      'Learn how the CPI basket works and why essentials inflation affects lower-income families more than headline numbers suggest.',
     content: (
       <>
         <p>
@@ -130,6 +140,8 @@ const articles: Record<
   },
   'labor-market-indicators': {
     title: 'Labor Market Indicators Explained',
+    description:
+      'Discover why the unemployment rate misses important details and how prime-age employment ratios give a clearer picture.',
     content: (
       <>
         <p>
@@ -180,6 +192,50 @@ export function generateStaticParams() {
   return Object.keys(articles).map((slug) => ({ slug }));
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const article = articles[slug];
+
+  if (!article) {
+    return { title: 'Article Not Found' };
+  }
+
+  return {
+    title: `${article.title} | People's Economy Hub`,
+    description: article.description,
+    openGraph: {
+      title: article.title,
+      description: article.description,
+      type: 'article',
+    },
+  };
+}
+
+function ArticleJsonLd({ slug, article }: { slug: string; article: ArticleData }) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.title,
+    description: article.description,
+    url: `https://peopleseconomyhub.github.io/learn/${slug}`,
+    publisher: {
+      '@type': 'Organization',
+      name: "People's Economy Hub",
+    },
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
+
 export default async function ArticlePage({
   params,
 }: {
@@ -193,26 +249,29 @@ export default async function ArticlePage({
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <Link
-        href="/learn"
-        className="text-positive hover:underline mb-8 inline-block"
-      >
-        ← Back to Learn
-      </Link>
-
-      <article className="prose max-w-none">
-        <h1 className="text-4xl font-bold text-neutral mb-8">{article.title}</h1>
-        <div className="text-neutral leading-relaxed space-y-4">
-          {article.content}
-        </div>
-      </article>
-
-      <div className="mt-12 pt-8 border-t border-gray-200">
-        <Link href="/methodology" className="text-positive hover:underline">
-          Learn more about our methodology →
+    <>
+      <ArticleJsonLd slug={slug} article={article} />
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <Link
+          href="/learn"
+          className="text-positive hover:underline mb-8 inline-block"
+        >
+          ← Back to Learn
         </Link>
+
+        <article className="prose max-w-none">
+          <h1 className="text-4xl font-bold text-neutral mb-8">{article.title}</h1>
+          <div className="text-neutral leading-relaxed space-y-4">
+            {article.content}
+          </div>
+        </article>
+
+        <div className="mt-12 pt-8 border-t border-gray-200">
+          <Link href="/methodology" className="text-positive hover:underline">
+            Learn more about our methodology →
+          </Link>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
