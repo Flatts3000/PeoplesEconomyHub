@@ -6,12 +6,16 @@ const withBundleAnalyzer = bundleAnalyzer({
 });
 
 const isGitHubPages = process.env.GITHUB_ACTIONS === 'true';
+const basePath = isGitHubPages ? '/PeoplesEconomyHub' : '';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
-  basePath: isGitHubPages ? '/PeoplesEconomyHub' : '',
+  basePath,
   assetPrefix: isGitHubPages ? '/PeoplesEconomyHub/' : '',
+  env: {
+    NEXT_PUBLIC_BASE_PATH: basePath,
+  },
   images: {
     unoptimized: true,
   },

@@ -2,6 +2,7 @@ import { Hero } from '@/components/Hero';
 import { MetricCard } from '@/components/MetricCard';
 import { DataFreshness } from '@/components/DataFreshness';
 import { getMetrics } from '@/lib/metrics';
+import { getAssetPath } from '@/lib/assets';
 
 export default function Home() {
   const metrics = getMetrics();
@@ -57,7 +58,7 @@ export default function Home() {
             <div className="order-2 lg:order-1">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/illustrations/methodology.svg"
+                src={getAssetPath('/images/illustrations/methodology.svg')}
                 alt="Diagram showing how People's Economy Hub translates economic data into household-relevant metrics"
                 className="w-full max-w-lg mx-auto h-auto"
                 loading="lazy"

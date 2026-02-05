@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { MetricSummary } from './MetricSummary';
 import { Metric } from '@/lib/types';
+import { getAssetPath } from '@/lib/assets';
 
 interface HeroProps {
   metrics: Metric[];
@@ -93,7 +94,7 @@ export function Hero({ metrics }: HeroProps) {
           {/* Hero illustration */}
           <div className="hidden lg:block lg:flex-1 max-w-md animate-fade-in stagger-2">
             <Image
-              src="/images/illustrations/hero-household.svg"
+              src={getAssetPath('/images/illustrations/hero-household.svg')}
               alt="Illustration of a family reviewing their household finances"
               width={400}
               height={300}
